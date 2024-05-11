@@ -130,13 +130,14 @@
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="input_functions.cpp" />
     <ClCompile Include="list.cpp" />
+    <ClCompile Include="queue.cpp" />
     <ClCompile Include="solution.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input_functions.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="list.h" />
-    <ClInclude Include="struct_results.h" />
+    <ClInclude Include="queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

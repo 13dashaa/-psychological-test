@@ -1,12 +1,5 @@
 #include "functions.h"
-#include "input_functions.h"
-#include "struct_results.h"
-void clear(char** mas, int size)
-{
-	for (int i = 0; i < size; i++)
-		free(mas[i]);
-	free(mas);
-}
+
 void print_information(int type,person current_person_copy)
 {
 	int n;
@@ -36,35 +29,28 @@ void print_information(int type,person current_person_copy)
 		}
 	}
 }
-person* memory(int amount)
-{
-	person* list;
-	list = (person*)malloc(amount * sizeof(person));                                             //Создаём массив структур
-	if (list == NULL)
-	{
-		printf("Память не выделена\n");
-		return 0;
-	}
-	return list;
-}
-void input(person* list, int index, person temp_struct)
-{
-	*(list + index) = temp_struct;
-}
+
+
 void print_result(person current_person_copy)
 {
+
 	if (current_person_copy.results->amount_answers == 100)
 		printf("%s, Вы на %d %s.\n", current_person_copy.nickname, (current_person_copy.results)->amount_answers, (current_person_copy.results)->type);
 	else if (current_person_copy.type_test == 1)
 	{
 		printf("% s, в Вашем темпераменте сочетаются черты ", current_person_copy.nickname);
 		int i = 0;
-		for (i; i < 3; i++)
+		for (i; i < 4; i++)
 		{
-			if ((current_person_copy.results + i)->amount_answers != 0)
-				printf("%sа (%2d%%), ", (current_person_copy.results + i)->type, (current_person_copy.results + i)->amount_answers);
+			if (i > 0 && (current_person_copy.results + i)->amount_answers != 0)
+			{
+				printf(", ");
+				printf("%sа (%2d%%)", (current_person_copy.results + i)->type, (current_person_copy.results + i)->amount_answers);
+			}
+			else if((current_person_copy.results + i)->amount_answers != 0)
+				printf("%sа (%2d%%)", (current_person_copy.results + i)->type, (current_person_copy.results + i)->amount_answers);
 		}
-		printf("%sа (%2d%%).", (current_person_copy.results + i)->type, (current_person_copy.results + i)->amount_answers);
+		printf(".");
 	}
 	else
 	{
@@ -156,62 +142,150 @@ char** read_file(FILE* file, const char* file_name, int* size)                  
 	return text;
 }
 
-
-result* temperament_test_answers(char** text, struct result* temperament_results, int size)
+result* test_answers(queue_node* head, struct result* answers, int size)
 {
-	char* result = (char*)malloc(20);
-	char str[MAX_WORD];
-	int mas[4] = { 0, 0, 0 ,0 };
-	for(int j = 0; j < size; j+=5) {
-		for (int i = 0; i < 5; i++)
-		{
-			if (*(text+i+j) != NULL)
-				printf("%s\n", *(text + i + j));
-		}
+	while (head != NULL) {
+		show_queue(head, size);
+		delete_head_of_queue(&head, size);
 		printf("Введите ответ:\n");
 		int a;
-
 		enter_answer_temp(&a);
-		mas[a - 1]++;
-		(temperament_results[a - 1].amount_answers)++;
+		((*(answers+a-1)).amount_answers)++;
 		system("cls");
 	}
-	for (int i = 0; i < 4; i++)
-
-		temperament_results[i].amount_answers *= 10;
-
-	return temperament_results;
+	for (int i = 0; i < size; i++)
+	{
+		if(size ==4 )
+			(*(answers + i)).amount_answers *= 10;
+		else
+			(*(answers + i)).amount_answers = int((*(answers + i)).amount_answers * 100 / 15);
+	}
+	return answers;
 }
-void temp_test(FILE* f, int size, person* temp_struct, result* temperament_results)
-{
 
-	char** text = read_file(f, FILE_TEMPERAMENT, &size);
-	(*temp_struct).results = (result*)malloc(4 * sizeof(result));
-	result* temp_result = (result*)malloc(4 * sizeof(result));
-	temp_result = temperament_test_answers(text, temperament_results, size);
-	for (int j = 0; j < 4; j++)
+void test(FILE* f, const char* file_name, int size, person* temp_struct, result* test_results)
+{
+	queue_node* head, * tail;
+	head = NULL;
+	tail = NULL;
+	head = create_queue(f, file_name, head, &tail, size);
+	(*temp_struct).results = (result*)malloc(size * sizeof(result));
+	result* temp_result = (result*)malloc(size * sizeof(result));
+	temp_result = test_answers(head, test_results, size);
+	for (int j = 0; j < size; j++)
 	{
 		*((*temp_struct).results + j) = *(temp_result + j);
 	}
 
-	for (int j = 0; j < 4; j++)
-		temperament_results[j].amount_answers = 0;
+	for (int j = 0; j < size; j++)
+		test_results[j].amount_answers = 0;
 }
-void character_test(FILE* f, int size, person* temp_struct, result* answer_character)
-{
-
-	char** text = read_file(f, FILE_CHARACTER, &size);
-	(*temp_struct).results = (result*)malloc(2 * sizeof(result));
-	result* temp_result = (result*)malloc(2 * sizeof(result));
-	temp_result = character_test_answer(text, answer_character, size);
-	for (int j = 0; j < 2; j++)
-	{
-		*((*temp_struct).results + j) = *(temp_result + j);
-	}
-
-	for (int j = 0; j < 2; j++)
-		answer_character[j].amount_answers = 0;
-}
+//void input(person* list, int index, person temp_struct)
+//{
+//	*(list + index) = temp_struct;
+//}
+//result* character_test_answer(queue_node* head, struct result* character_results, int size)
+//{
+//	while (head != NULL) {
+//		show_queue(head, 2);
+//		delete_head_of_queue(&head);
+//		printf("Введите ответ:\n");
+//		int a;
+//		
+//		enter_answer_charct(&a);
+//
+//		(character_results[a - 1].amount_answers)++;
+//		system("cls");
+//	} 
+//
+//	for (int i = 0; i < 2; i++)
+//		character_results[i].amount_answers = int(character_results[i].amount_answers * 100 / 15);
+//
+//
+//	return character_results;
+//}
+//result* temperament_test_answers(char** text, struct result* temperament_results, int size)
+//{
+//	char* result = (char*)malloc(20);
+//	char str[MAX_WORD];
+//	int mas[4] = { 0, 0, 0 ,0 };
+//	for(int j = 0; j < size; j+=5) {
+//		for (int i = 0; i < 5; i++)
+//		{
+//			if (*(text+i+j) != NULL)
+//				printf("%s\n", *(text + i + j));
+//		}
+//		printf("Введите ответ:\n");
+//		int a;
+//
+//		enter_answer_temp(&a);
+//		mas[a - 1]++;
+//		(temperament_results[a - 1].amount_answers)++;
+//		system("cls");
+//	}
+//	for (int i = 0; i < 4; i++)
+//
+//		temperament_results[i].amount_answers *= 10;
+//
+//	return temperament_results;
+//}
+//void temp_test(FILE* f, int size, person* temp_struct, result* temperament_results)
+//{
+//	queue_node* head, * tail;
+//	head = NULL;
+//	tail = NULL;
+//	head = create_queue(f, FILE_TEMPERAMENT, head, &tail, size);
+//	//char** text = read_file(f, FILE_TEMPERAMENT, &size);
+//	(*temp_struct).results = (result*)malloc(size * sizeof(result));
+//	result* temp_result = (result*)malloc(size * sizeof(result));
+//	temp_result = temperament_test_answers(head, temperament_results, size);
+//	for (int j = 0; j < size; j++)
+//	{
+//		*((*temp_struct).results + j) = *(temp_result + j);
+//	}
+//
+//	for (int j = 0; j < size; j++)
+//		temperament_results[j].amount_answers = 0;
+//}
+//result* temperament_test_answers(queue_node* head, struct result* temperament_results, int size)
+//{
+//	//char* result = (char*)malloc(20);
+//	//char str[MAX_WORD];
+//	//int mas[4] = { 0, 0, 0 ,0 };
+//	while(head!=NULL) {
+//		show_queue(head, 4);
+//		delete_head_of_queue(&head);
+//		printf("Введите ответ:\n");
+//		int a;
+//
+//		enter_answer_temp(&a);
+//		//mas[a - 1]++;
+//		(temperament_results[a - 1].amount_answers)++;
+//		system("cls");
+//	}
+//	for (int i = 0; i < 4; i++)
+//
+//		temperament_results[i].amount_answers *= 10;
+//
+//	return temperament_results;
+//}
+//void character_test(FILE* f, int size, person* temp_struct, result* answer_character)
+//{
+//	queue_node* head, * tail;
+//	head = NULL;
+//	tail = NULL;
+//	head = create_queue(f, FILE_CHARACTER, head, &tail, size);
+//	(*temp_struct).results = (result*)malloc(2 * sizeof(result));
+//	result* temp_result = (result*)malloc(2 * sizeof(result));
+//	temp_result = character_test_answer(head, answer_character, size);
+//	for (int j = 0; j < 2; j++)
+//	{
+//		*((*temp_struct).results + j) = *(temp_result + j);
+//	}
+//
+//	for (int j = 0; j < 2; j++)
+//		answer_character[j].amount_answers = 0;
+//}
 ////////result* temperament_test(FILE* f, struct result* temperament_results)
 ////////{
 ////////	char* result = (char*)malloc(20);
@@ -265,48 +339,45 @@ void character_test(FILE* f, int size, person* temp_struct, result* answer_chara
 ////////	fclose(f);
 ////////	return temperament_results;
 ////////}
-result* character_test_answer(char** text, struct result* character_results, int size)
-{
-	char* result = (char*)malloc(20);
-	char str[1000];
-	//fopen_s(&f, "d:/тест на характер.txt", "r");
-	/*if (err == 0)
-	{
-		printf("The file 'crt_fopen_s.c' was opened\n");
-	}
-	else
-	{
-		printf("The file 'crt_fopen_s.c' was not opened\n");
-	}*/
-	int mas[2] = { 0, 0};
-	for (int j = 0; j < size; j += 3) {
-		// while (fgets(c, 100, f) != NULL)
-		for (int i = 0; i < 3; i++)
-		{
-			if (*(text + i + j) != NULL)
-				printf("%s\n", *(text + i + j));
-		}
-		int a;
-		printf("Введите ответ:\n");
-		enter_answer_charct(&a);
-		/*scanf_s("%d", &a);*/
-		mas[a - 1]++;
-		(character_results[a - 1].amount_answers)++;
-		system("cls");
-	}
-	printf("%d, %d", mas[0], mas[1]);
-	printf("\n");
-	for (int i = 0; i < 2; i++)
-		character_results[i].amount_answers = int(character_results[i].amount_answers*100/15);
-	/*int max_answer = 0;
-	int n = 0;*/
-	
-	/*printf((temperament_results + n)->type);*/
-	/*fscanf_s(f, "%s", c);
-	//printf("%s", c);*/
-	//fclose(f);
-	return character_results;
-}
+//result* character_test_answer(queue_node* head, struct result* character_results, int size)
+//{
+//	//char* result = (char*)malloc(20);
+//	//char str[1000];
+//	//fopen_s(&f, "d:/тест на характер.txt", "r");
+//	/*if (err == 0)
+//	{
+//		printf("The file 'crt_fopen_s.c' was opened\n");
+//	}
+//	else
+//	{
+//		printf("The file 'crt_fopen_s.c' was not opened\n");
+//	}*/
+//	//int mas[2] = { 0, 0};
+//	while (head != NULL) {
+//		show_queue(head, 2);
+//		delete_head_of_queue(&head);
+//		printf("Введите ответ:\n");
+//		int a;
+//		//printf("Введите ответ:\n");
+//		enter_answer_charct(&a);
+//		/*scanf_s("%d", &a);*/
+//		//mas[a - 1]++;
+//		(character_results[a - 1].amount_answers)++;
+//		system("cls");
+//	}
+//	//printf("%d, %d", mas[0], mas[1]);
+//	//printf("\n");
+//	for (int i = 0; i < 2; i++)
+//		character_results[i].amount_answers = int(character_results[i].amount_answers*100/15);
+//	/*int max_answer = 0;
+//	int n = 0;*/
+//	
+//	/*printf((temperament_results + n)->type);*/
+//	/*fscanf_s(f, "%s", c);
+//	//printf("%s", c);*/
+//	//fclose(f);
+//	return character_results;
+//}
 //void print_questions(char** text, int amount_line_in_question, int size)
 //{
 //
@@ -315,16 +386,3 @@ result* character_test_answer(char** text, struct result* character_results, int
 //			if (*(text + i + j) != NULL)
 //				printf("%s\n", *(text + i + j));
 //		}
-//		printf("Введите ответ:\n");
-//}
-//void out(person* list, int n)
-//{
-//	printf("Никнейм\t\tРезультат\n");
-//	for (int i = 0; i < n; i++)
-//	{
-//		if ((list + i)->type_test == 1)
-//			printf("%-10s %10s %3d %10s %3d %10s %3d %10s %3d\n", list[i].nickname, list[i].results[0].type, list[i].results[0].amount_answers, list[i].results[1].type, list[i].results[1].amount_answers, list[i].results[2].type, list[i].results[2].amount_answers, list[i].results[3].type, list[i].results[3].amount_answers);
-//		else
-//			printf("%-10s %10s %3d %10s %3d\n", list[i].nickname, list[i].results[0].type, list[i].results[0].amount_answers, list[i].results[1].type, list[i].results[1].amount_answers);
-//	}
-//}

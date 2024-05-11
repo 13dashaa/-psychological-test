@@ -1,4 +1,5 @@
 #include "functions.h"
+//#include "queue.h"
 #include "list.h"
 int main() 
 {
@@ -14,51 +15,52 @@ int main()
 		enter_int(&amount);
 		Node* head = NULL;
 		system("CLS");
-		//head = (struct Node*)malloc(sizeof(struct Node));
-		//person* list = memory(amount);
 		for (int i = 0; i < amount; i++)
 		{
-
 			rewind(stdin);
 			person current_person;
-			Node* cur_node = (struct Node*)malloc(sizeof(struct Node));
-			cur_node = NULL;
 			FILE* f = NULL;
 			printf("Введите никнейм %d% человека.\n", i + 1);
 			enter_str(current_person.nickname, N, stdin);
 			printf("Если хотите определить тип темперамента, введите 1. Если же хотите проити тест на характер, введите 2.\n");
 			enter_answer_charct(&current_person.type_test);
 			system("CLS");
-			int size = 0;
+			int size;
+			const char* file_name;
+			result* test_result;
 			if (current_person.type_test == 1)
 			{
-				temp_test(f, size, &current_person, temperament_results);
+				size = 4;
+				file_name = FILE_TEMPERAMENT;
+				test_result = temperament_results;
 			}
 			else
 			{
-				character_test(f, size, &current_person, answer_character);
+				size = 2;
+				file_name = FILE_CHARACTER;
+				test_result = answer_character;
 			}
-			add_el(&head, current_person);
+			test(f, file_name, size, &current_person, test_result);
+			add_el(&head, current_person);													//добавление структуры человека в список. Список сортируется по алфавиту
 			person current_person_copy = create_copy(current_person, current_person.type_test);
-			//printf("Result:\n");
 			sort_result(&current_person_copy, current_person.type_test);
 			printf("%s%s%s\nРезультат теста не является достоверным на 100 %% и имеет исключительно информативный характер.\nНажмите для продолжения\n", RED, "ВНИМАНИЕ!!!", RESET);
 			_getch();
 			system("CLS");
-			print_result(current_person_copy);
+			print_result(current_person_copy);												//вывод результатов тестирования на экран				
 			printf("\nЕсли хотите узнать расшифровку теста введите 1.\n");
 			int sign;
 			enter_int(&sign);
 			if (sign == 1)
 			{
-				print_information(current_person.type_test, current_person_copy);
+				print_information(current_person.type_test, current_person_copy);			//вывод пояснения результата
 				_getch();
 			}
 			system("CLS");
-
+			free(current_person_copy.results);
 		}
 		FILE* f_res = NULL;
-		file_write(f_res, "result", head);
+		file_write(f_res, "result", head);												  //запись в файл
 		printf("\nЕсли хотите выполнить программу еще раз, введите 1. Иначе, введите 0.\n");					//запрос на повторное выполнение програмы
 		int val2;
 		do {
@@ -68,9 +70,7 @@ int main()
 				printf("Неверный ввод. Повторите попытку.\n");
 		} while (!val2 || (flag != 0 && flag != 1));
 		system("CLS");
+		clear_ring(&head);
 	} while (flag);
-	//displayList(head);
-	//out(list, amount);
-	/*printf("%s", result1);*/
 	return 0;
 }
