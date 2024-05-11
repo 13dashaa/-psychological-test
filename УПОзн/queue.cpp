@@ -1,17 +1,17 @@
-#include "queue.h"
+o#include "queue.h"
 
 
 char** memory(int line, int signs)
 {
 	char** text;
-	text = (char**)malloc(line * sizeof(char*));                                             //Создаём массив указателей
-	for (int i = 0; i < line; i++) {                                                         //Каждому элементу из массива указателей присваиваем адрес выделенного массива памяти
+	text = (char**)malloc(line * sizeof(char*));                                             //Г‘Г®Г§Г¤Г ВёГ¬ Г¬Г Г±Г±ГЁГў ГіГЄГ Г§Г ГІГҐГ«ГҐГ©
+	for (int i = 0; i < line; i++) {                                                         //ГЉГ Г¦Г¤Г®Г¬Гі ГЅГ«ГҐГ¬ГҐГ­ГІГі ГЁГ§ Г¬Г Г±Г±ГЁГўГ  ГіГЄГ Г§Г ГІГҐГ«ГҐГ© ГЇГ°ГЁГ±ГўГ ГЁГўГ ГҐГ¬ Г Г¤Г°ГҐГ± ГўГ»Г¤ГҐГ«ГҐГ­Г­Г®ГЈГ® Г¬Г Г±Г±ГЁГўГ  ГЇГ Г¬ГїГІГЁ
 
 		*(text + i) = (char*)malloc(signs * sizeof(char));
 	}
 	if (text == NULL)
 	{
-		printf("Память не выделена");
+		printf("error");
 		return 0;
 	}
 	return text;
@@ -52,7 +52,7 @@ queue_node* create_queue(FILE* f, const char* file_name, queue_node* head, queue
 {
 	if (fopen_s(&f, file_name, "rt") != 0)
 	{
-		printf("Ошибка при открытии файла.\n");
+		printf("error.\n");
 		return 0;
 	}
 	while (!feof(f))
